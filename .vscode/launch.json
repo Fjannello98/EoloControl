@@ -1,0 +1,12 @@
+{
+  "version": "0.2.0",
+  "configurations": [
+    {
+      "type": "java",
+      "name": "Ejecutar EoloControl",
+      "request": "launch",
+      "mainClass": "ar.edu.siglo21.eolocontrol.App",
+      "projectName": "eolocontrol-java"
+    }
+  ]
+}
