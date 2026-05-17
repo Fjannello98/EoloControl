@@ -1,4 +1,4 @@
-package ar.edu.siglo21.eolocontrol.model;
+package eolocontrol.model;
 
 import java.time.LocalDateTime;
 
@@ -12,3 +12,4 @@ public record Alerta(
         String severidad,
         boolean atendida) {
 }
+

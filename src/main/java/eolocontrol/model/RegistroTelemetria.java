@@ -1,4 +1,4 @@
-package ar.edu.siglo21.eolocontrol.model;
+package eolocontrol.model;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -15,3 +15,4 @@ public record RegistroTelemetria(
         return new RegistroTelemetria(nuevoId, turbinaId, fechaHora, velocidadVientoKmh, direccionViento, energiaGeneradaMwh);
     }
 }
+

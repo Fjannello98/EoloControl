@@ -1,6 +1,6 @@
-package ar.edu.siglo21.eolocontrol.dao;
+package eolocontrol.dao;
 
-import ar.edu.siglo21.eolocontrol.db.Database;
+import eolocontrol.db.Database;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -47,3 +47,4 @@ public class ReporteDao {
         }
     }
 }
+

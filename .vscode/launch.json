@@ -5,15 +5,21 @@
       "type": "java",
       "name": "Ejecutar EoloControl Swing",
       "request": "launch",
-      "mainClass": "ar.edu.siglo21.eolocontrol.SwingApp",
-      "projectName": "eolocontrol-java"
+      "mainClass": "eolocontrol.SwingApp",
+      "classPaths": [
+        "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/lib/mysql-connector-j-8.4.0.jar"
+      ]
     },
     {
       "type": "java",
       "name": "Ejecutar EoloControl Consola",
       "request": "launch",
-      "mainClass": "ar.edu.siglo21.eolocontrol.App",
-      "projectName": "eolocontrol-java"
+      "mainClass": "eolocontrol.App",
+      "classPaths": [
+        "${workspaceFolder}/target/classes",
+        "${workspaceFolder}/lib/mysql-connector-j-8.4.0.jar"
+      ]
     }
   ]
 }

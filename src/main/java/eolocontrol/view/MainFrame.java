@@ -1,15 +1,15 @@
-package ar.edu.siglo21.eolocontrol.view;
+package eolocontrol.view;
 
-import ar.edu.siglo21.eolocontrol.dao.AlertaDao;
-import ar.edu.siglo21.eolocontrol.dao.CentralDao;
-import ar.edu.siglo21.eolocontrol.dao.ReporteDao;
-import ar.edu.siglo21.eolocontrol.dao.TelemetriaDao;
-import ar.edu.siglo21.eolocontrol.dao.TurbinaDao;
-import ar.edu.siglo21.eolocontrol.model.CentralEolica;
-import ar.edu.siglo21.eolocontrol.model.RegistroTelemetria;
-import ar.edu.siglo21.eolocontrol.model.TurbinaEolica;
-import ar.edu.siglo21.eolocontrol.model.Usuario;
-import ar.edu.siglo21.eolocontrol.service.AlertaService;
+import eolocontrol.dao.AlertaDao;
+import eolocontrol.dao.CentralDao;
+import eolocontrol.dao.ReporteDao;
+import eolocontrol.dao.TelemetriaDao;
+import eolocontrol.dao.TurbinaDao;
+import eolocontrol.model.CentralEolica;
+import eolocontrol.model.RegistroTelemetria;
+import eolocontrol.model.TurbinaEolica;
+import eolocontrol.model.Usuario;
+import eolocontrol.service.AlertaService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -24,6 +24,9 @@ import javax.swing.JTextArea;
 import javax.swing.JTextField;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Dimension;
+import java.awt.Font;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -32,6 +35,12 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
     private static final DateTimeFormatter INPUT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
+    private static final Color COLOR_FONDO = new Color(244, 247, 246);
+    private static final Color COLOR_PANEL = Color.WHITE;
+    private static final Color COLOR_PRIMARIO = new Color(28, 115, 107);
+    private static final Color COLOR_TEXTO = new Color(36, 48, 56);
+    private static final Font FONT_BASE = new Font("Segoe UI", Font.PLAIN, 13);
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 22);
 
     private final CentralDao centralDao;
     private final TurbinaDao turbinaDao;
@@ -68,17 +77,38 @@ public class MainFrame extends JFrame {
 
     private void configurar() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(900, 560);
+        setSize(980, 620);
+        getContentPane().setBackground(COLOR_FONDO);
         setLocationRelativeTo(null);
 
         JTabbedPane tabs = new JTabbedPane();
+        tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tabs.setBackground(COLOR_FONDO);
         tabs.addTab("Centrales", crearPanelCentrales());
         tabs.addTab("Turbinas", crearPanelTurbinas());
         tabs.addTab("Telemetria", crearPanelTelemetria());
         tabs.addTab("Reportes", crearPanelTexto(reportesArea, this::cargarReportes));
         tabs.addTab("Alertas", crearPanelTexto(alertasArea, this::cargarAlertas));
 
+        add(crearEncabezado(), BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
+    }
+
+    private JPanel crearEncabezado() {
+        JLabel titulo = new JLabel("EoloControl");
+        titulo.setFont(FONT_TITULO);
+        titulo.setForeground(Color.WHITE);
+
+        JLabel bajada = new JLabel("Panel de monitoreo y gestion operativa de turbinas eolicas");
+        bajada.setFont(FONT_BASE);
+        bajada.setForeground(new Color(216, 235, 232));
+
+        JPanel panel = new JPanel(new GridLayout(2, 1, 0, 2));
+        panel.setBackground(COLOR_PRIMARIO);
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 24, 18, 24));
+        panel.add(titulo);
+        panel.add(bajada);
+        return panel;
     }
 
     private JPanel crearPanelCentrales() {
@@ -87,8 +117,8 @@ public class MainFrame extends JFrame {
         JTextField provincia = new JTextField();
 
         JPanel form = formulario(new String[]{"Nombre", "Ubicacion", "Provincia"}, new JTextField[]{nombre, ubicacion, provincia});
-        JButton guardar = new JButton("Registrar central");
-        JButton actualizar = new JButton("Actualizar listado");
+        JButton guardar = botonPrincipal("Registrar central");
+        JButton actualizar = botonSecundario("Actualizar listado");
 
         guardar.addActionListener(event -> ejecutar("Central registrada.", () -> {
             centralDao.crear(new CentralEolica(0, nombre.getText().trim(), ubicacion.getText().trim(), provincia.getText().trim()));
@@ -98,14 +128,17 @@ public class MainFrame extends JFrame {
         actualizar.addActionListener(event -> cargarCentrales());
 
         JPanel acciones = new JPanel();
+        acciones.setBackground(COLOR_PANEL);
         acciones.add(guardar);
         acciones.add(actualizar);
 
         JPanel superior = new JPanel(new BorderLayout());
+        superior.setBackground(COLOR_PANEL);
+        superior.setBorder(BorderFactory.createTitledBorder("Datos de la central"));
         superior.add(form, BorderLayout.CENTER);
         superior.add(acciones, BorderLayout.SOUTH);
 
-        return panelConTabla(superior, new JTable(centralesModel));
+        return panelConTabla(superior, tabla(centralesModel));
     }
 
     private JPanel crearPanelTurbinas() {
@@ -118,8 +151,8 @@ public class MainFrame extends JFrame {
         JPanel form = formulario(
                 new String[]{"ID central", "Codigo", "Modelo", "Potencia maxima kW", "Estado"},
                 new JTextField[]{centralId, codigo, modelo, potencia, estado});
-        JButton guardar = new JButton("Registrar turbina");
-        JButton actualizar = new JButton("Actualizar listado");
+        JButton guardar = botonPrincipal("Registrar turbina");
+        JButton actualizar = botonSecundario("Actualizar listado");
 
         guardar.addActionListener(event -> ejecutar("Turbina registrada.", () -> {
             turbinaDao.crear(new TurbinaEolica(
@@ -136,14 +169,17 @@ public class MainFrame extends JFrame {
         actualizar.addActionListener(event -> cargarTurbinas());
 
         JPanel acciones = new JPanel();
+        acciones.setBackground(COLOR_PANEL);
         acciones.add(guardar);
         acciones.add(actualizar);
 
         JPanel superior = new JPanel(new BorderLayout());
+        superior.setBackground(COLOR_PANEL);
+        superior.setBorder(BorderFactory.createTitledBorder("Datos de la turbina"));
         superior.add(form, BorderLayout.CENTER);
         superior.add(acciones, BorderLayout.SOUTH);
 
-        return panelConTabla(superior, new JTable(turbinasModel));
+        return panelConTabla(superior, tabla(turbinasModel));
     }
 
     private JPanel crearPanelTelemetria() {
@@ -157,7 +193,7 @@ public class MainFrame extends JFrame {
                 new String[]{"ID turbina", "Fecha y hora", "Velocidad viento km/h", "Direccion viento", "Energia generada MWh"},
                 new JTextField[]{turbinaId, fechaHora, velocidad, direccion, energia});
 
-        JButton guardar = new JButton("Registrar telemetria");
+        JButton guardar = botonPrincipal("Registrar telemetria");
         guardar.addActionListener(event -> ejecutar("Telemetria registrada.", () -> {
             RegistroTelemetria registro = new RegistroTelemetria(
                     0,
@@ -175,20 +211,26 @@ public class MainFrame extends JFrame {
         }));
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
-        panel.add(new JLabel("Formato de fecha: yyyy-MM-dd HH:mm"), BorderLayout.NORTH);
-        panel.add(form, BorderLayout.CENTER);
+        panel.setBackground(COLOR_FONDO);
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
+        JPanel bloque = seccion("Nueva medicion", form);
+        bloque.add(new JLabel("Formato de fecha: yyyy-MM-dd HH:mm"), BorderLayout.NORTH);
+        panel.add(bloque, BorderLayout.CENTER);
         panel.add(guardar, BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel crearPanelTexto(JTextArea area, Runnable actualizar) {
         area.setEditable(false);
-        JButton actualizarButton = new JButton("Actualizar");
+        area.setFont(new Font("Consolas", Font.PLAIN, 13));
+        area.setForeground(COLOR_TEXTO);
+        area.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        JButton actualizarButton = botonSecundario("Actualizar");
         actualizarButton.addActionListener(event -> actualizar.run());
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        panel.setBackground(COLOR_FONDO);
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         panel.add(new JScrollPane(area), BorderLayout.CENTER);
         panel.add(actualizarButton, BorderLayout.SOUTH);
         return panel;
@@ -196,8 +238,14 @@ public class MainFrame extends JFrame {
 
     private JPanel formulario(String[] etiquetas, JTextField[] campos) {
         JPanel panel = new JPanel(new GridLayout(etiquetas.length, 2, 8, 8));
+        panel.setBackground(COLOR_PANEL);
         for (int i = 0; i < etiquetas.length; i++) {
-            panel.add(new JLabel(etiquetas[i]));
+            JLabel label = new JLabel(etiquetas[i]);
+            label.setFont(FONT_BASE);
+            label.setForeground(COLOR_TEXTO);
+            campos[i].setFont(FONT_BASE);
+            campos[i].setPreferredSize(new Dimension(180, 28));
+            panel.add(label);
             panel.add(campos[i]);
         }
         panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
@@ -206,10 +254,48 @@ public class MainFrame extends JFrame {
 
     private JPanel panelConTabla(JPanel superior, JTable tabla) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBorder(BorderFactory.createEmptyBorder(16, 16, 16, 16));
+        panel.setBackground(COLOR_FONDO);
+        panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         panel.add(superior, BorderLayout.NORTH);
         panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
         return panel;
+    }
+
+    private JTable tabla(DefaultTableModel model) {
+        JTable tabla = new JTable(model);
+        tabla.setFont(FONT_BASE);
+        tabla.setRowHeight(28);
+        tabla.setGridColor(new Color(225, 232, 230));
+        tabla.setSelectionBackground(new Color(214, 235, 231));
+        tabla.setSelectionForeground(COLOR_TEXTO);
+        tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
+        tabla.getTableHeader().setBackground(new Color(229, 239, 237));
+        tabla.getTableHeader().setForeground(COLOR_TEXTO);
+        return tabla;
+    }
+
+    private JPanel seccion(String titulo, JPanel contenido) {
+        JPanel panel = new JPanel(new BorderLayout(10, 10));
+        panel.setBackground(COLOR_PANEL);
+        panel.setBorder(BorderFactory.createTitledBorder(titulo));
+        panel.add(contenido, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JButton botonPrincipal(String texto) {
+        JButton boton = new JButton(texto);
+        boton.setBackground(COLOR_PRIMARIO);
+        boton.setForeground(Color.WHITE);
+        boton.setFocusPainted(false);
+        boton.setFont(new Font("Segoe UI", Font.BOLD, 13));
+        return boton;
+    }
+
+    private JButton botonSecundario(String texto) {
+        JButton boton = new JButton(texto);
+        boton.setFocusPainted(false);
+        boton.setFont(FONT_BASE);
+        return boton;
     }
 
     private void cargarDatos() {
@@ -283,3 +369,4 @@ public class MainFrame extends JFrame {
         }
     }
 }
+

@@ -1,7 +1,7 @@
-package ar.edu.siglo21.eolocontrol.dao;
+package eolocontrol.dao;
 
-import ar.edu.siglo21.eolocontrol.db.Database;
-import ar.edu.siglo21.eolocontrol.model.RegistroTelemetria;
+import eolocontrol.db.Database;
+import eolocontrol.model.RegistroTelemetria;
 
 import java.sql.SQLException;
 import java.sql.Statement;
@@ -42,3 +42,4 @@ public class TelemetriaDao {
         }
     }
 }
+

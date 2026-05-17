@@ -1,4 +1,4 @@
-package ar.edu.siglo21.eolocontrol.view;
+package eolocontrol.view;
 
 import java.math.BigDecimal;
 import java.time.LocalDateTime;
@@ -76,3 +76,4 @@ public class ConsoleView {
         System.out.println(texto);
     }
 }
+

@@ -5,7 +5,7 @@
 Comando ejecutado:
 
 ```powershell
-mvn clean compile
+.\scripts\compile.ps1
 ```
 
 Resultado: compilacion correcta.

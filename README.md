@@ -18,7 +18,6 @@ El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de da
 
 - Java 17.
 - Swing.
-- Maven.
 - MySQL Server.
 - MySQL Connector/J.
 - Visual Studio Code con extensiones Java.
@@ -34,7 +33,14 @@ EoloControl-Java/
     02_seed.sql
     03_queries.sql
     04_delete_test_data.sql
-  src/main/java/ar/edu/siglo21/eolocontrol/
+  lib/
+    mysql-connector-j-8.4.0.jar
+  scripts/
+    compile.ps1
+    run.ps1
+    start-mysql.ps1
+    load-db.ps1
+  src/main/java/eolocontrol/
     App.java
     SwingApp.java
     dao/
@@ -42,7 +48,6 @@ EoloControl-Java/
     model/
     service/
     view/
-  pom.xml
 ```
 
 ## Base de datos
@@ -85,26 +90,20 @@ $env:DB_PASSWORD=""
 ## Ejecucion
 
 ```powershell
-mvn clean compile
-mvn exec:java
-```
-
-Con las herramientas portables dentro de `tools/`, se puede ejecutar:
-
-```powershell
+.\scripts\compile.ps1
 .\scripts\run.ps1
 ```
 
 La clase principal grafica es:
 
 ```text
-ar.edu.siglo21.eolocontrol.SwingApp
+eolocontrol.SwingApp
 ```
 
 La version de consola queda disponible en:
 
 ```text
-ar.edu.siglo21.eolocontrol.App
+eolocontrol.App
 ```
 
 Usuarios de prueba:

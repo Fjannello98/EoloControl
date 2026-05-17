@@ -1,7 +1,7 @@
-package ar.edu.siglo21.eolocontrol.dao;
+package eolocontrol.dao;
 
-import ar.edu.siglo21.eolocontrol.db.Database;
-import ar.edu.siglo21.eolocontrol.model.Alerta;
+import eolocontrol.db.Database;
+import eolocontrol.model.Alerta;
 
 import java.sql.SQLException;
 import java.time.LocalDateTime;
@@ -53,3 +53,4 @@ public class AlertaDao {
         }
     }
 }
+

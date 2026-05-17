@@ -1,4 +1,4 @@
-package ar.edu.siglo21.eolocontrol.db;
+package eolocontrol.db;
 
 import java.sql.Connection;
 import java.sql.DriverManager;
@@ -19,3 +19,4 @@ public final class Database {
         return DriverManager.getConnection(url, user, password);
     }
 }
+

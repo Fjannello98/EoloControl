@@ -1,17 +1,17 @@
-package ar.edu.siglo21.eolocontrol;
+package eolocontrol;
 
-import ar.edu.siglo21.eolocontrol.dao.AlertaDao;
-import ar.edu.siglo21.eolocontrol.dao.CentralDao;
-import ar.edu.siglo21.eolocontrol.dao.ReporteDao;
-import ar.edu.siglo21.eolocontrol.dao.TelemetriaDao;
-import ar.edu.siglo21.eolocontrol.dao.TurbinaDao;
-import ar.edu.siglo21.eolocontrol.dao.UsuarioDao;
-import ar.edu.siglo21.eolocontrol.model.CentralEolica;
-import ar.edu.siglo21.eolocontrol.model.RegistroTelemetria;
-import ar.edu.siglo21.eolocontrol.model.TurbinaEolica;
-import ar.edu.siglo21.eolocontrol.model.Usuario;
-import ar.edu.siglo21.eolocontrol.service.AlertaService;
-import ar.edu.siglo21.eolocontrol.view.ConsoleView;
+import eolocontrol.dao.AlertaDao;
+import eolocontrol.dao.CentralDao;
+import eolocontrol.dao.ReporteDao;
+import eolocontrol.dao.TelemetriaDao;
+import eolocontrol.dao.TurbinaDao;
+import eolocontrol.dao.UsuarioDao;
+import eolocontrol.model.CentralEolica;
+import eolocontrol.model.RegistroTelemetria;
+import eolocontrol.model.TurbinaEolica;
+import eolocontrol.model.Usuario;
+import eolocontrol.service.AlertaService;
+import eolocontrol.view.ConsoleView;
 
 public class App {
     public static void main(String[] args) {
@@ -113,3 +113,4 @@ public class App {
         view.ok("Telemetria registrada. ID: " + idRegistro);
     }
 }
+

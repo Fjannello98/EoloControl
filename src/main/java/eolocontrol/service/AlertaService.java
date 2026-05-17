@@ -1,8 +1,8 @@
-package ar.edu.siglo21.eolocontrol.service;
+package eolocontrol.service;
 
-import ar.edu.siglo21.eolocontrol.dao.AlertaDao;
-import ar.edu.siglo21.eolocontrol.model.Alerta;
-import ar.edu.siglo21.eolocontrol.model.RegistroTelemetria;
+import eolocontrol.dao.AlertaDao;
+import eolocontrol.model.Alerta;
+import eolocontrol.model.RegistroTelemetria;
 
 import java.math.BigDecimal;
 
@@ -32,3 +32,4 @@ public class AlertaService {
         }
     }
 }
+

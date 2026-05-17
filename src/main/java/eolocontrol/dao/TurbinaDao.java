@@ -1,7 +1,7 @@
-package ar.edu.siglo21.eolocontrol.dao;
+package eolocontrol.dao;
 
-import ar.edu.siglo21.eolocontrol.db.Database;
-import ar.edu.siglo21.eolocontrol.model.TurbinaEolica;
+import eolocontrol.db.Database;
+import eolocontrol.model.TurbinaEolica;
 
 import java.sql.SQLException;
 import java.util.ArrayList;
@@ -52,3 +52,4 @@ public class TurbinaDao {
         }
     }
 }
+

@@ -1,4 +1,4 @@
-package ar.edu.siglo21.eolocontrol.model;
+package eolocontrol.model;
 
 import java.math.BigDecimal;
 
@@ -10,3 +10,4 @@ public record TurbinaEolica(
         BigDecimal potenciaMaximaKw,
         String estado) {
 }
+
