@@ -15,7 +15,7 @@ Get-ChildItem -Path (Join-Path $projectRoot "src\main\java") -Recurse -Filter *.
     ForEach-Object { $_.FullName } |
     Set-Content -Path $sourcesFile -Encoding ASCII
 
-javac --release 17 -encoding UTF-8 -cp "$projectRoot\lib\*" -d $target "@$sourcesFile"
+javac --release 17 -encoding UTF-8 -d $target "@$sourcesFile"
 if ($LASTEXITCODE -ne 0) {
     exit $LASTEXITCODE
 }

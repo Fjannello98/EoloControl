@@ -40,10 +40,10 @@ Resultado: flujo ejecutado correctamente.
 Se agrego una interfaz grafica de escritorio con:
 
 - Login de usuario.
-- Pestaña de centrales.
-- Pestaña de turbinas.
-- Pestaña de telemetria.
-- Pestaña de reportes.
-- Pestaña de alertas.
+- Pestana de centrales.
+- Pestana de turbinas.
+- Pestana de telemetria.
+- Pestana de reportes.
+- Pestana de alertas.
 
 Resultado: compilacion correcta de la interfaz Swing y conexion reutilizada con los DAOs del prototipo.

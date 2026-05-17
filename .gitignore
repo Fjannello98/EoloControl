@@ -1,5 +1,6 @@
 target/
 .idea/
+.vscode/.ropeproject/
 .classpath
 .project
 .settings/
@@ -7,3 +8,8 @@ target/
 *.log
 tools/
 mysql-data/
+*.class
+*.tmp
+*.bak
+.DS_Store
+Thumbs.db

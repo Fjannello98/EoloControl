@@ -1,8 +1,8 @@
 # EoloControl Java
 
-Prototipo con interfaz grafica Swing para el sistema de monitoreo de generacion y estado de turbinas eolicas de ECO Viento.
+Prototipo de escritorio para el monitoreo de generacion y estado de turbinas eolicas de ECO Viento.
 
-El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de datos. El alcance del prototipo cubre las funciones principales necesarias para registrar centrales, turbinas, telemetria, alertas y reportes basicos de energia. Tambien se conserva una version de consola como alternativa tecnica.
+La aplicacion esta desarrollada en Java con Swing y utiliza MySQL para la persistencia de datos. El proyecto no requiere Maven ni Gradle: se compila directamente con `javac` y usa MySQL Connector/J incluido en la carpeta `lib`.
 
 ## Funcionalidades
 
@@ -12,86 +12,119 @@ El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de da
 - Registro de telemetria de viento y energia generada.
 - Generacion automatica de alertas por baja generacion.
 - Consulta de alertas pendientes.
-- Reporte de energia generada por turbina.
+- Reporte basico de energia generada por turbina.
 
-## Tecnologias
+## Requisitos
 
-- Java 17.
-- Swing.
-- MySQL Server.
-- MySQL Connector/J.
-- Visual Studio Code con extensiones Java.
+- Java JDK 17 o superior.
+- MySQL Server 8 o superior.
+- Cliente de MySQL disponible en la terminal (`mysql`).
 
-## Estructura
+## Estructura del proyecto
 
 ```text
 EoloControl-Java/
   docs/
-    entregables.md
+  lib/
+    mysql-connector-j-8.4.0.jar
+  scripts/
+    compile.ps1
+    compile.sh
+    load-db.ps1
+    load-db.sh
+    run.ps1
+    run.sh
   sql/
     01_schema.sql
     02_seed.sql
     03_queries.sql
     04_delete_test_data.sql
-  lib/
-    mysql-connector-j-8.4.0.jar
-  scripts/
-    compile.ps1
-    run.ps1
-    start-mysql.ps1
-    load-db.ps1
   src/main/java/eolocontrol/
-    App.java
-    SwingApp.java
-    dao/
-    db/
-    model/
-    service/
-    view/
 ```
 
-## Base de datos
+## Configurar la base de datos
 
-Crear la base y cargar datos iniciales:
+Antes de ejecutar la aplicacion, MySQL debe estar instalado y en ejecucion.
 
-```powershell
-mysql -u root -p < sql/01_schema.sql
-mysql -u root -p < sql/02_seed.sql
-```
-
-Tambien se puede usar el script incluido:
+### Windows PowerShell
 
 ```powershell
 .\scripts\load-db.ps1
 ```
 
-Ejecutar consultas de verificacion:
+### Linux, macOS o Git Bash
 
-```powershell
-mysql -u root -p < sql/03_queries.sql
+```bash
+chmod +x scripts/*.sh
+./scripts/load-db.sh
 ```
 
-Borrar datos de prueba:
+Si MySQL tiene otro usuario o password, se pueden definir variables de entorno antes de cargar la base.
+
+Windows PowerShell:
 
 ```powershell
-mysql -u root -p < sql/04_delete_test_data.sql
+$env:MYSQL_USER="root"
+$env:MYSQL_PASSWORD="tu_password"
+.\scripts\load-db.ps1
 ```
 
-## Configuracion de conexion
+Linux, macOS o Git Bash:
 
-La aplicacion usa estas variables de entorno. Si no se definen, intenta conectarse a MySQL local con usuario `root` y password vacio.
+```bash
+export MYSQL_USER=root
+export MYSQL_PASSWORD=tu_password
+./scripts/load-db.sh
+```
+
+## Configurar la conexion de la aplicacion
+
+Por defecto, la aplicacion intenta conectarse a:
+
+```text
+jdbc:mysql://localhost:3306/ecoviento?useSSL=false&serverTimezone=UTC
+```
+
+Credenciales por defecto:
+
+```text
+Usuario: root
+Password: vacio
+```
+
+Si se necesita cambiar la conexion:
+
+Windows PowerShell:
 
 ```powershell
 $env:DB_URL="jdbc:mysql://localhost:3306/ecoviento?useSSL=false&serverTimezone=UTC"
 $env:DB_USER="root"
-$env:DB_PASSWORD=""
+$env:DB_PASSWORD="tu_password"
 ```
 
-## Ejecucion
+Linux, macOS o Git Bash:
+
+```bash
+export DB_URL="jdbc:mysql://localhost:3306/ecoviento?useSSL=false&serverTimezone=UTC"
+export DB_USER=root
+export DB_PASSWORD=tu_password
+```
+
+## Ejecutar la aplicacion
+
+### Windows PowerShell
 
 ```powershell
 .\scripts\compile.ps1
 .\scripts\run.ps1
+```
+
+### Linux, macOS o Git Bash
+
+```bash
+chmod +x scripts/*.sh
+./scripts/compile.sh
+./scripts/run.sh
 ```
 
 La clase principal grafica es:
@@ -106,17 +139,18 @@ La version de consola queda disponible en:
 eolocontrol.App
 ```
 
-Usuarios de prueba:
+## Usuarios de prueba
 
-- `admin` / `admin123`
-- `operador1` / `operador123`
+```text
+admin / admin123
+operador1 / operador123
+```
 
-## Entregables relacionados
+## Consultas SQL
 
-Los archivos SQL y el codigo fuente cubren:
+Los scripts SQL se encuentran en la carpeta `sql`:
 
-- Definicion de base de datos para el sistema.
-- Creacion de tablas MySQL.
-- Insercion, consulta y borrado de registros.
-- Presentacion de consultas SQL.
-- Definiciones de comunicacion mediante JDBC.
+- `01_schema.sql`: creacion de base y tablas.
+- `02_seed.sql`: datos iniciales.
+- `03_queries.sql`: consultas de verificacion.
+- `04_delete_test_data.sql`: limpieza de datos de prueba.
