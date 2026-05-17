@@ -3,7 +3,14 @@
   "configurations": [
     {
       "type": "java",
-      "name": "Ejecutar EoloControl",
+      "name": "Ejecutar EoloControl Swing",
+      "request": "launch",
+      "mainClass": "ar.edu.siglo21.eolocontrol.SwingApp",
+      "projectName": "eolocontrol-java"
+    },
+    {
+      "type": "java",
+      "name": "Ejecutar EoloControl Consola",
       "request": "launch",
       "mainClass": "ar.edu.siglo21.eolocontrol.App",
       "projectName": "eolocontrol-java"

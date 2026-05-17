@@ -1,8 +1,8 @@
 # EoloControl Java
 
-Prototipo de consola para el sistema de monitoreo de generacion y estado de turbinas eolicas de ECO Viento.
+Prototipo con interfaz grafica Swing para el sistema de monitoreo de generacion y estado de turbinas eolicas de ECO Viento.
 
-El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de datos. El alcance del prototipo cubre las funciones principales necesarias para registrar centrales, turbinas, telemetria, alertas y reportes basicos de energia.
+El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de datos. El alcance del prototipo cubre las funciones principales necesarias para registrar centrales, turbinas, telemetria, alertas y reportes basicos de energia. Tambien se conserva una version de consola como alternativa tecnica.
 
 ## Funcionalidades
 
@@ -17,6 +17,7 @@ El proyecto esta desarrollado en Java y utiliza MySQL para la persistencia de da
 ## Tecnologias
 
 - Java 17.
+- Swing.
 - Maven.
 - MySQL Server.
 - MySQL Connector/J.
@@ -35,6 +36,7 @@ EoloControl-Java/
     04_delete_test_data.sql
   src/main/java/ar/edu/siglo21/eolocontrol/
     App.java
+    SwingApp.java
     dao/
     db/
     model/
@@ -91,6 +93,18 @@ Con las herramientas portables dentro de `tools/`, se puede ejecutar:
 
 ```powershell
 .\scripts\run.ps1
+```
+
+La clase principal grafica es:
+
+```text
+ar.edu.siglo21.eolocontrol.SwingApp
+```
+
+La version de consola queda disponible en:
+
+```text
+ar.edu.siglo21.eolocontrol.App
 ```
 
 Usuarios de prueba:

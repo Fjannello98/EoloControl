@@ -29,7 +29,7 @@
                 <artifactId>exec-maven-plugin</artifactId>
                 <version>3.5.1</version>
                 <configuration>
-                    <mainClass>ar.edu.siglo21.eolocontrol.App</mainClass>
+                    <mainClass>ar.edu.siglo21.eolocontrol.SwingApp</mainClass>
                 </configuration>
             </plugin>
         </plugins>

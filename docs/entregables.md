@@ -33,7 +33,7 @@ Las consultas SQL se entregan como archivos separados para que puedan ejecutarse
 
 ## Definiciones de comunicacion
 
-El prototipo se comunica con la base de datos mediante JDBC. La aplicacion Java usa MySQL Connector/J como controlador y toma los parametros de conexion desde variables de entorno:
+El prototipo se comunica con la base de datos mediante JDBC. La aplicacion Java usa MySQL Connector/J como controlador y toma los parametros de conexion desde variables de entorno. La interfaz grafica esta desarrollada con Swing y se ejecuta como aplicacion de escritorio local.
 
 - `DB_URL`
 - `DB_USER`

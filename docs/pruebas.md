@@ -34,3 +34,16 @@ Flujo probado:
 7. Generacion automatica de alerta.
 
 Resultado: flujo ejecutado correctamente.
+
+## Interfaz Swing
+
+Se agrego una interfaz grafica de escritorio con:
+
+- Login de usuario.
+- Pestaña de centrales.
+- Pestaña de turbinas.
+- Pestaña de telemetria.
+- Pestaña de reportes.
+- Pestaña de alertas.
+
+Resultado: compilacion correcta de la interfaz Swing y conexion reutilizada con los DAOs del prototipo.
