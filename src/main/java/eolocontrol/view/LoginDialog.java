@@ -19,6 +19,8 @@ import java.awt.GridLayout;
 import java.util.Optional;
 
 public class LoginDialog extends JDialog {
+    private static final Color COLOR_PRIMARIO = new Color(34, 91, 112);
+
     private final UsuarioDao usuarioDao;
     private final JTextField usuarioField = new JTextField("admin");
     private final JPasswordField passwordField = new JPasswordField("admin123");
@@ -38,20 +40,16 @@ public class LoginDialog extends JDialog {
 
     private void configurar() {
         JLabel titulo = new JLabel("EoloControl");
-        titulo.setFont(new Font("Segoe UI", Font.BOLD, 24));
-        titulo.setForeground(new Color(23, 88, 83));
+        titulo.setFont(new Font("Segoe UI", Font.BOLD, 25));
 
         JLabel subtitulo = new JLabel("Monitoreo de centrales y turbinas eolicas");
         subtitulo.setFont(new Font("Segoe UI", Font.PLAIN, 13));
-        subtitulo.setForeground(new Color(84, 100, 111));
 
         JPanel encabezado = new JPanel(new GridLayout(2, 1, 0, 2));
-        encabezado.setBackground(Color.WHITE);
         encabezado.add(titulo);
         encabezado.add(subtitulo);
 
         JPanel form = new JPanel(new GridLayout(2, 2, 8, 8));
-        form.setBackground(Color.WHITE);
         form.setBorder(BorderFactory.createEmptyBorder(16, 0, 8, 0));
         form.add(new JLabel("Usuario"));
         form.add(usuarioField);
@@ -60,19 +58,22 @@ public class LoginDialog extends JDialog {
 
         JButton ingresarButton = new JButton("Ingresar");
         JButton cancelarButton = new JButton("Cancelar");
-        ingresarButton.setBackground(new Color(28, 115, 107));
-        ingresarButton.setForeground(Color.WHITE);
+        ingresarButton.putClientProperty("JButton.buttonType", "roundRect");
+        ingresarButton.putClientProperty("FlatLaf.style", "background: #225B70; foreground: #FFFFFF; hoverBackground: #2E6E86; pressedBackground: #19495B;");
         ingresarButton.setFocusPainted(false);
+        ingresarButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
         ingresarButton.addActionListener(event -> autenticar());
+        cancelarButton.putClientProperty("JButton.buttonType", "roundRect");
+        cancelarButton.putClientProperty("FlatLaf.style", "focusColor: #4F93A8;");
+        cancelarButton.setFocusPainted(false);
+        cancelarButton.setBorder(BorderFactory.createEmptyBorder(8, 16, 8, 16));
         cancelarButton.addActionListener(event -> dispose());
 
         JPanel acciones = new JPanel();
-        acciones.setBackground(Color.WHITE);
         acciones.add(ingresarButton);
         acciones.add(cancelarButton);
 
         JPanel contenido = new JPanel(new BorderLayout(10, 10));
-        contenido.setBackground(Color.WHITE);
         contenido.setBorder(BorderFactory.createEmptyBorder(22, 24, 20, 24));
         contenido.add(encabezado, BorderLayout.NORTH);
         contenido.add(form, BorderLayout.CENTER);

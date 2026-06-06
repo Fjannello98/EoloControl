@@ -1,5 +1,7 @@
 package eolocontrol;
 
+import com.formdev.flatlaf.FlatLightLaf;
+
 import eolocontrol.dao.AlertaDao;
 import eolocontrol.dao.CentralDao;
 import eolocontrol.dao.ReporteDao;
@@ -13,15 +15,17 @@ import eolocontrol.view.MainFrame;
 
 import javax.swing.SwingUtilities;
 import javax.swing.UIManager;
+import java.awt.Font;
 import java.util.Optional;
 
 public class SwingApp {
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             try {
-                UIManager.setLookAndFeel(UIManager.getSystemLookAndFeelClassName());
+                UIManager.put("defaultFont", new Font("Segoe UI", Font.PLAIN, 13));
+                FlatLightLaf.setup();
             } catch (Exception ignored) {
-                // Swing usa su apariencia por defecto si no puede cargar la del sistema.
+                // Swing usa su apariencia por defecto si no puede cargar FlatLaf.
             }
 
             UsuarioDao usuarioDao = new UsuarioDao();

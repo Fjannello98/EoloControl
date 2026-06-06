@@ -27,6 +27,26 @@ public class TurbinaDao {
         }
     }
 
+    public void actualizar(TurbinaEolica turbina) {
+        String sql = """
+                UPDATE turbinas_eolicas
+                SET id_central = ?, codigo = ?, modelo = ?, potencia_maxima_kw = ?, estado = ?
+                WHERE id_turbina = ?
+                """;
+        try (var conn = Database.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setInt(1, turbina.centralId());
+            stmt.setString(2, turbina.codigo());
+            stmt.setString(3, turbina.modelo());
+            stmt.setBigDecimal(4, turbina.potenciaMaximaKw());
+            stmt.setString(5, turbina.estado().toUpperCase());
+            stmt.setInt(6, turbina.id());
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DaoException("No se pudo actualizar la turbina.", ex);
+        }
+    }
+
     public List<TurbinaEolica> listar() {
         String sql = """
                 SELECT id_turbina, id_central, codigo, modelo, potencia_maxima_kw, estado

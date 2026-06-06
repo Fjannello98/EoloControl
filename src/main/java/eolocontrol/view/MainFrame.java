@@ -1,5 +1,8 @@
 package eolocontrol.view;
 
+import com.formdev.flatlaf.FlatDarkLaf;
+import com.formdev.flatlaf.FlatLightLaf;
+
 import eolocontrol.dao.AlertaDao;
 import eolocontrol.dao.CentralDao;
 import eolocontrol.dao.ReporteDao;
@@ -14,6 +17,7 @@ import eolocontrol.service.InventarioService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
+import javax.swing.JComboBox;
 import javax.swing.JFrame;
 import javax.swing.JLabel;
 import javax.swing.JOptionPane;
@@ -23,10 +27,13 @@ import javax.swing.JTabbedPane;
 import javax.swing.JTable;
 import javax.swing.JTextArea;
 import javax.swing.JTextField;
+import javax.swing.SwingUtilities;
+import javax.swing.UIManager;
 import javax.swing.table.DefaultTableModel;
 import java.awt.BorderLayout;
 import java.awt.Color;
 import java.awt.Dimension;
+import java.awt.FlowLayout;
 import java.awt.Font;
 import java.awt.GridLayout;
 import java.math.BigDecimal;
@@ -36,12 +43,10 @@ import java.util.List;
 
 public class MainFrame extends JFrame {
     private static final DateTimeFormatter INPUT_DATE = DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm");
-    private static final Color COLOR_FONDO = new Color(244, 247, 246);
-    private static final Color COLOR_PANEL = Color.WHITE;
-    private static final Color COLOR_PRIMARIO = new Color(28, 115, 107);
-    private static final Color COLOR_TEXTO = new Color(36, 48, 56);
+    private static final Color COLOR_PRIMARIO = new Color(34, 91, 112);
     private static final Font FONT_BASE = new Font("Segoe UI", Font.PLAIN, 13);
-    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 22);
+    private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 24);
+    private static final Font FONT_SUBTITULO = new Font("Segoe UI", Font.BOLD, 16);
 
     private final CentralDao centralDao;
     private final TurbinaDao turbinaDao;
@@ -52,11 +57,25 @@ public class MainFrame extends JFrame {
     private final InventarioService inventarioService = new InventarioService();
 
     private final DefaultTableModel centralesModel = new DefaultTableModel(
-            new Object[]{"ID", "Nombre", "Ubicacion", "Provincia"}, 0);
+            new Object[]{"ID", "Nombre", "Ubicacion", "Provincia"}, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column > 0;
+        }
+    };
     private final DefaultTableModel turbinasModel = new DefaultTableModel(
-            new Object[]{"ID", "Central", "Codigo", "Modelo", "Potencia kW", "Estado"}, 0);
+            new Object[]{"ID", "Central", "Codigo", "Modelo", "Potencia kW", "Estado"}, 0) {
+        @Override
+        public boolean isCellEditable(int row, int column) {
+            return column > 0;
+        }
+    };
     private final JTextArea reportesArea = new JTextArea();
     private final JTextArea alertasArea = new JTextArea();
+    private final JLabel estadoLabel = new JLabel("Listo.");
+    private final JButton temaButton = botonSecundario("Modo oscuro");
+    private boolean cargandoTablas;
+    private boolean modoOscuro;
 
     public MainFrame(
             Usuario usuario,
@@ -79,13 +98,11 @@ public class MainFrame extends JFrame {
 
     private void configurar() {
         setDefaultCloseOperation(EXIT_ON_CLOSE);
-        setSize(980, 620);
-        getContentPane().setBackground(COLOR_FONDO);
+        setSize(1120, 720);
         setLocationRelativeTo(null);
 
         JTabbedPane tabs = new JTabbedPane();
         tabs.setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tabs.setBackground(COLOR_FONDO);
         tabs.addTab("Centrales", crearPanelCentrales());
         tabs.addTab("Turbinas", crearPanelTurbinas());
         tabs.addTab("Telemetria", crearPanelTelemetria());
@@ -94,22 +111,35 @@ public class MainFrame extends JFrame {
 
         add(crearEncabezado(), BorderLayout.NORTH);
         add(tabs, BorderLayout.CENTER);
+        add(crearBarraEstado(), BorderLayout.SOUTH);
+        configurarEdicionTablas();
     }
 
     private JPanel crearEncabezado() {
         JLabel titulo = new JLabel("EoloControl");
         titulo.setFont(FONT_TITULO);
-        titulo.setForeground(Color.WHITE);
 
         JLabel bajada = new JLabel("Panel de monitoreo y gestion operativa de turbinas eolicas");
         bajada.setFont(FONT_BASE);
-        bajada.setForeground(new Color(216, 235, 232));
 
         JPanel panel = new JPanel(new GridLayout(2, 1, 0, 2));
-        panel.setBackground(COLOR_PRIMARIO);
-        panel.setBorder(BorderFactory.createEmptyBorder(18, 24, 18, 24));
         panel.add(titulo);
         panel.add(bajada);
+
+        temaButton.addActionListener(event -> alternarTema());
+
+        JPanel contenedor = new JPanel(new BorderLayout(12, 0));
+        contenedor.setBorder(BorderFactory.createEmptyBorder(18, 24, 18, 24));
+        contenedor.add(panel, BorderLayout.CENTER);
+        contenedor.add(temaButton, BorderLayout.EAST);
+        return contenedor;
+    }
+
+    private JPanel crearBarraEstado() {
+        estadoLabel.setFont(FONT_BASE);
+        JPanel panel = new JPanel(new BorderLayout());
+        panel.setBorder(BorderFactory.createEmptyBorder(8, 18, 8, 18));
+        panel.add(estadoLabel, BorderLayout.WEST);
         return panel;
     }
 
@@ -120,7 +150,7 @@ public class MainFrame extends JFrame {
 
         JPanel form = formulario(new String[]{"Nombre", "Ubicacion", "Provincia"}, new JTextField[]{nombre, ubicacion, provincia});
         JButton guardar = botonPrincipal("Registrar central");
-        JButton actualizar = botonSecundario("Actualizar listado");
+        JButton actualizar = botonSecundario("Actualizar");
 
         guardar.addActionListener(event -> ejecutar("Central registrada.", () -> {
             centralDao.crear(new CentralEolica(0, nombre.getText().trim(), ubicacion.getText().trim(), provincia.getText().trim()));
@@ -129,18 +159,16 @@ public class MainFrame extends JFrame {
         }));
         actualizar.addActionListener(event -> cargarCentrales());
 
-        JPanel acciones = new JPanel();
-        acciones.setBackground(COLOR_PANEL);
-        acciones.add(guardar);
-        acciones.add(actualizar);
+        JPanel acciones = acciones(guardar, actualizar);
 
         JPanel superior = new JPanel(new BorderLayout());
-        superior.setBackground(COLOR_PANEL);
-        superior.setBorder(BorderFactory.createTitledBorder("Datos de la central"));
+        superior.setBorder(BorderFactory.createEmptyBorder());
+        superior.add(tituloPanel("Centrales eolicas", "Carga nuevos datos o edita directamente las filas de la tabla."), BorderLayout.NORTH);
         superior.add(form, BorderLayout.CENTER);
         superior.add(acciones, BorderLayout.SOUTH);
 
-        return panelConTabla(superior, tabla(centralesModel));
+        JTable tabla = tabla(centralesModel);
+        return panelConTabla(superior, tabla, "Doble clic sobre Nombre, Ubicacion o Provincia para editar y guardar automaticamente.");
     }
 
     private JPanel crearPanelTurbinas() {
@@ -154,7 +182,7 @@ public class MainFrame extends JFrame {
                 new String[]{"ID central", "Codigo", "Modelo", "Potencia maxima kW", "Estado"},
                 new JTextField[]{centralId, codigo, modelo, potencia, estado});
         JButton guardar = botonPrincipal("Registrar turbina");
-        JButton actualizar = botonSecundario("Actualizar listado");
+        JButton actualizar = botonSecundario("Actualizar");
         JButton buscar = botonSecundario("Buscar por codigo");
 
         guardar.addActionListener(event -> ejecutar("Turbina registrada.", () -> {
@@ -172,19 +200,18 @@ public class MainFrame extends JFrame {
         actualizar.addActionListener(event -> cargarTurbinas());
         buscar.addActionListener(event -> buscarTurbinaPorCodigo());
 
-        JPanel acciones = new JPanel();
-        acciones.setBackground(COLOR_PANEL);
-        acciones.add(guardar);
-        acciones.add(buscar);
-        acciones.add(actualizar);
+        JPanel acciones = acciones(guardar, buscar, actualizar);
 
         JPanel superior = new JPanel(new BorderLayout());
-        superior.setBackground(COLOR_PANEL);
-        superior.setBorder(BorderFactory.createTitledBorder("Datos de la turbina"));
+        superior.setBorder(BorderFactory.createEmptyBorder());
+        superior.add(tituloPanel("Turbinas", "Administra el inventario, busca por codigo o edita las filas de la tabla."), BorderLayout.NORTH);
         superior.add(form, BorderLayout.CENTER);
         superior.add(acciones, BorderLayout.SOUTH);
 
-        return panelConTabla(superior, tabla(turbinasModel));
+        JTable tabla = tabla(turbinasModel);
+        tabla.getColumnModel().getColumn(5).setCellEditor(new javax.swing.DefaultCellEditor(
+                new JComboBox<>(new String[]{"OPERATIVA", "MANTENIMIENTO", "FALLA", "DETENIDA"})));
+        return panelConTabla(superior, tabla, "Doble clic para editar Central, Codigo, Modelo, Potencia o Estado. El ID queda protegido.");
     }
 
     private JPanel crearPanelTelemetria() {
@@ -216,91 +243,152 @@ public class MainFrame extends JFrame {
         }));
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBackground(COLOR_FONDO);
         panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         JPanel bloque = seccion("Nueva medicion", form);
-        bloque.add(new JLabel("Formato de fecha: yyyy-MM-dd HH:mm"), BorderLayout.NORTH);
+        bloque.add(tituloPanel("Telemetria", "Formato de fecha: yyyy-MM-dd HH:mm"), BorderLayout.NORTH);
         panel.add(bloque, BorderLayout.CENTER);
-        panel.add(guardar, BorderLayout.SOUTH);
+        panel.add(acciones(guardar), BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel crearPanelTexto(JTextArea area, Runnable actualizar) {
         area.setEditable(false);
         area.setFont(new Font("Consolas", Font.PLAIN, 13));
-        area.setForeground(COLOR_TEXTO);
         area.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
         JButton actualizarButton = botonSecundario("Actualizar");
         actualizarButton.addActionListener(event -> actualizar.run());
 
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBackground(COLOR_FONDO);
         panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
         panel.add(new JScrollPane(area), BorderLayout.CENTER);
-        panel.add(actualizarButton, BorderLayout.SOUTH);
+        panel.add(acciones(actualizarButton), BorderLayout.SOUTH);
         return panel;
     }
 
     private JPanel formulario(String[] etiquetas, JTextField[] campos) {
-        JPanel panel = new JPanel(new GridLayout(etiquetas.length, 2, 8, 8));
-        panel.setBackground(COLOR_PANEL);
+        JPanel panel = new JPanel(new GridLayout(etiquetas.length, 2, 10, 10));
         for (int i = 0; i < etiquetas.length; i++) {
             JLabel label = new JLabel(etiquetas[i]);
             label.setFont(FONT_BASE);
-            label.setForeground(COLOR_TEXTO);
             campos[i].setFont(FONT_BASE);
-            campos[i].setPreferredSize(new Dimension(180, 28));
+            campos[i].setPreferredSize(new Dimension(190, 30));
             panel.add(label);
             panel.add(campos[i]);
         }
-        panel.setBorder(BorderFactory.createEmptyBorder(12, 12, 12, 12));
+        panel.setBorder(BorderFactory.createEmptyBorder(12, 0, 12, 0));
         return panel;
     }
 
-    private JPanel panelConTabla(JPanel superior, JTable tabla) {
+    private JPanel panelConTabla(JPanel superior, JTable tabla, String ayuda) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBackground(COLOR_FONDO);
         panel.setBorder(BorderFactory.createEmptyBorder(18, 18, 18, 18));
-        panel.add(superior, BorderLayout.NORTH);
-        panel.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        panel.add(seccion(null, superior), BorderLayout.NORTH);
+
+        JLabel ayudaLabel = new JLabel(ayuda);
+        ayudaLabel.setFont(FONT_BASE);
+
+        JPanel tablaPanel = new JPanel(new BorderLayout(0, 8));
+        tablaPanel.add(ayudaLabel, BorderLayout.NORTH);
+        tablaPanel.add(new JScrollPane(tabla), BorderLayout.CENTER);
+        panel.add(tablaPanel, BorderLayout.CENTER);
         return panel;
     }
 
     private JTable tabla(DefaultTableModel model) {
         JTable tabla = new JTable(model);
         tabla.setFont(FONT_BASE);
-        tabla.setRowHeight(28);
-        tabla.setGridColor(new Color(225, 232, 230));
-        tabla.setSelectionBackground(new Color(214, 235, 231));
-        tabla.setSelectionForeground(COLOR_TEXTO);
+        tabla.setRowHeight(30);
         tabla.getTableHeader().setFont(new Font("Segoe UI", Font.BOLD, 13));
-        tabla.getTableHeader().setBackground(new Color(229, 239, 237));
-        tabla.getTableHeader().setForeground(COLOR_TEXTO);
+        tabla.setAutoCreateRowSorter(true);
+        tabla.setFillsViewportHeight(true);
+        tabla.setShowVerticalLines(false);
         return tabla;
     }
 
     private JPanel seccion(String titulo, JPanel contenido) {
         JPanel panel = new JPanel(new BorderLayout(10, 10));
-        panel.setBackground(COLOR_PANEL);
-        panel.setBorder(BorderFactory.createTitledBorder(titulo));
+        if (titulo == null) {
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createLineBorder(UIManager.getColor("Component.borderColor")),
+                    BorderFactory.createEmptyBorder(14, 16, 14, 16)));
+        } else {
+            panel.setBorder(BorderFactory.createCompoundBorder(
+                    BorderFactory.createTitledBorder(titulo),
+                    BorderFactory.createEmptyBorder(8, 10, 10, 10)));
+        }
         panel.add(contenido, BorderLayout.CENTER);
+        return panel;
+    }
+
+    private JPanel tituloPanel(String titulo, String ayuda) {
+        JLabel tituloLabel = new JLabel(titulo);
+        tituloLabel.setFont(FONT_SUBTITULO);
+        JLabel ayudaLabel = new JLabel(ayuda);
+        ayudaLabel.setFont(FONT_BASE);
+
+        JPanel panel = new JPanel(new GridLayout(2, 1, 0, 2));
+        panel.add(tituloLabel);
+        panel.add(ayudaLabel);
+        return panel;
+    }
+
+    private JPanel acciones(JButton... botones) {
+        JPanel panel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 8, 0));
+        for (JButton boton : botones) {
+            panel.add(boton);
+        }
         return panel;
     }
 
     private JButton botonPrincipal(String texto) {
         JButton boton = new JButton(texto);
-        boton.setBackground(COLOR_PRIMARIO);
-        boton.setForeground(Color.WHITE);
+        boton.putClientProperty("JButton.buttonType", "roundRect");
+        boton.putClientProperty("FlatLaf.style", "background: #225B70; foreground: #FFFFFF; focusColor: #4F93A8; hoverBackground: #2E6E86; pressedBackground: #19495B;");
         boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createEmptyBorder(9, 16, 9, 16));
         boton.setFont(new Font("Segoe UI", Font.BOLD, 13));
         return boton;
     }
 
     private JButton botonSecundario(String texto) {
         JButton boton = new JButton(texto);
+        boton.putClientProperty("JButton.buttonType", "roundRect");
+        boton.putClientProperty("FlatLaf.style", "focusColor: #4F93A8;");
         boton.setFocusPainted(false);
+        boton.setBorder(BorderFactory.createEmptyBorder(9, 16, 9, 16));
         boton.setFont(FONT_BASE);
         return boton;
+    }
+
+    private void alternarTema() {
+        try {
+            modoOscuro = !modoOscuro;
+            if (modoOscuro) {
+                FlatDarkLaf.setup();
+                temaButton.setText("Modo claro");
+                estado("Modo oscuro activado.");
+            } else {
+                FlatLightLaf.setup();
+                temaButton.setText("Modo oscuro");
+                estado("Modo claro activado.");
+            }
+            SwingUtilities.updateComponentTreeUI(this);
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, "No se pudo cambiar el tema.", "Tema", JOptionPane.ERROR_MESSAGE);
+        }
+    }
+
+    private void configurarEdicionTablas() {
+        centralesModel.addTableModelListener(event -> {
+            if (!cargandoTablas && event.getType() == javax.swing.event.TableModelEvent.UPDATE) {
+                guardarCentralEditada(event.getFirstRow());
+            }
+        });
+        turbinasModel.addTableModelListener(event -> {
+            if (!cargandoTablas && event.getType() == javax.swing.event.TableModelEvent.UPDATE) {
+                guardarTurbinaEditada(event.getFirstRow());
+            }
+        });
     }
 
     private void cargarDatos() {
@@ -312,15 +400,19 @@ public class MainFrame extends JFrame {
 
     private void cargarCentrales() {
         ejecutarSinMensaje(() -> {
+            cargandoTablas = true;
             centralesModel.setRowCount(0);
             for (CentralEolica central : centralDao.listar()) {
                 centralesModel.addRow(new Object[]{central.id(), central.nombre(), central.ubicacion(), central.provincia()});
             }
+            cargandoTablas = false;
+            estado("Centrales actualizadas.");
         });
     }
 
     private void cargarTurbinas() {
         ejecutarSinMensaje(() -> {
+            cargandoTablas = true;
             turbinasModel.setRowCount(0);
             // La vista muestra las turbinas ya ordenadas por el servicio de inventario.
             List<TurbinaEolica> turbinas = inventarioService.ordenarTurbinasPorCodigo(turbinaDao.listar());
@@ -333,7 +425,47 @@ public class MainFrame extends JFrame {
                         turbina.potenciaMaximaKw(),
                         turbina.estado()});
             }
+            cargandoTablas = false;
+            estado("Turbinas actualizadas.");
         });
+    }
+
+    private void guardarCentralEditada(int row) {
+        if (row < 0 || row >= centralesModel.getRowCount()) {
+            return;
+        }
+        try {
+            CentralEolica central = new CentralEolica(
+                    entero(centralesModel.getValueAt(row, 0)),
+                    texto(centralesModel.getValueAt(row, 1)),
+                    texto(centralesModel.getValueAt(row, 2)),
+                    texto(centralesModel.getValueAt(row, 3)));
+            centralDao.actualizar(central);
+            estado("Central actualizada automaticamente.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo editar la central", JOptionPane.ERROR_MESSAGE);
+            cargarCentrales();
+        }
+    }
+
+    private void guardarTurbinaEditada(int row) {
+        if (row < 0 || row >= turbinasModel.getRowCount()) {
+            return;
+        }
+        try {
+            TurbinaEolica turbina = new TurbinaEolica(
+                    entero(turbinasModel.getValueAt(row, 0)),
+                    entero(turbinasModel.getValueAt(row, 1)),
+                    texto(turbinasModel.getValueAt(row, 2)),
+                    texto(turbinasModel.getValueAt(row, 3)),
+                    decimal(turbinasModel.getValueAt(row, 4)),
+                    texto(turbinasModel.getValueAt(row, 5)));
+            turbinaDao.actualizar(turbina);
+            estado("Turbina actualizada automaticamente.");
+        } catch (Exception ex) {
+            JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo editar la turbina", JOptionPane.ERROR_MESSAGE);
+            cargarTurbinas();
+        }
     }
 
     private void buscarTurbinaPorCodigo() {
@@ -366,6 +498,7 @@ public class MainFrame extends JFrame {
     private void ejecutar(String mensajeOk, Runnable accion) {
         try {
             accion.run();
+            estado(mensajeOk);
             JOptionPane.showMessageDialog(this, mensajeOk, "Operacion correcta", JOptionPane.INFORMATION_MESSAGE);
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
@@ -376,12 +509,29 @@ public class MainFrame extends JFrame {
         try {
             accion.run();
         } catch (Exception ex) {
+            cargandoTablas = false;
             JOptionPane.showMessageDialog(this, ex.getMessage(), "Error", JOptionPane.ERROR_MESSAGE);
         }
     }
 
     private BigDecimal decimal(JTextField campo) {
         return new BigDecimal(campo.getText().trim().replace(",", "."));
+    }
+
+    private BigDecimal decimal(Object valor) {
+        return new BigDecimal(texto(valor).replace(",", "."));
+    }
+
+    private int entero(Object valor) {
+        return Integer.parseInt(texto(valor));
+    }
+
+    private String texto(Object valor) {
+        return valor == null ? "" : valor.toString().trim();
+    }
+
+    private void estado(String mensaje) {
+        estadoLabel.setText(mensaje);
     }
 
     private void limpiar(JTextField... campos) {

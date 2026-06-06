@@ -2,7 +2,7 @@
 
 Prototipo de escritorio para el monitoreo de generacion y estado de turbinas eolicas de ECO Viento.
 
-La aplicacion esta desarrollada en Java con Swing y utiliza MySQL para la persistencia de datos. El proyecto no requiere Maven ni Gradle: se compila directamente con `javac` y usa MySQL Connector/J incluido en la carpeta `lib`.
+La aplicacion esta desarrollada en Java con Swing y utiliza MySQL para la persistencia de datos. La interfaz usa FlatLaf como Look & Feel moderno para Swing, con soporte de modo claro y modo oscuro. El proyecto no requiere Maven ni Gradle: se compila directamente con `javac` y usa las librerias incluidas en la carpeta `lib`.
 
 Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explicita de programacion orientada a objetos: encapsulamiento, herencia, polimorfismo, abstraccion, interfaces, constructores, manejo de excepciones, listas, ordenamiento y busqueda. El detalle esta documentado en `docs/ap3-poo.md`.
 
@@ -12,9 +12,11 @@ Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explici
 - Registro y listado de centrales eolicas.
 - Registro y listado de turbinas eolicas.
 - Registro de telemetria de viento y energia generada.
+- Edicion directa de centrales y turbinas desde las tablas.
 - Generacion automatica de alertas por baja generacion.
 - Consulta de alertas pendientes.
 - Reporte basico de energia generada por turbina.
+- Cambio entre modo claro y modo oscuro.
 
 ## Requisitos
 
@@ -28,6 +30,7 @@ Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explici
 EoloControl-Java/
   docs/
   lib/
+    flatlaf-3.7.1.jar
     mysql-connector-j-8.4.0.jar
   scripts/
     compile.ps1

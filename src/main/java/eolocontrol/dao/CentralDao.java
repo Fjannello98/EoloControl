@@ -21,6 +21,20 @@ public class CentralDao {
         }
     }
 
+    public void actualizar(CentralEolica central) {
+        String sql = "UPDATE centrales_eolicas SET nombre = ?, ubicacion = ?, provincia = ? WHERE id_central = ?";
+        try (var conn = Database.getConnection();
+             var stmt = conn.prepareStatement(sql)) {
+            stmt.setString(1, central.nombre());
+            stmt.setString(2, central.ubicacion());
+            stmt.setString(3, central.provincia());
+            stmt.setInt(4, central.id());
+            stmt.executeUpdate();
+        } catch (SQLException ex) {
+            throw new DaoException("No se pudo actualizar la central.", ex);
+        }
+    }
+
     public List<CentralEolica> listar() {
         String sql = "SELECT id_central, nombre, ubicacion, provincia FROM centrales_eolicas ORDER BY nombre";
         List<CentralEolica> centrales = new ArrayList<>();
