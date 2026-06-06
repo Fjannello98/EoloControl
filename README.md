@@ -4,6 +4,8 @@ Prototipo de escritorio para el monitoreo de generacion y estado de turbinas eol
 
 La aplicacion esta desarrollada en Java con Swing y utiliza MySQL para la persistencia de datos. El proyecto no requiere Maven ni Gradle: se compila directamente con `javac` y usa MySQL Connector/J incluido en la carpeta `lib`.
 
+Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explicita de programacion orientada a objetos: encapsulamiento, herencia, polimorfismo, abstraccion, interfaces, constructores, manejo de excepciones, listas, ordenamiento y busqueda. El detalle esta documentado en `docs/ap3-poo.md`.
+
 ## Funcionalidades
 
 - Autenticacion de usuario.

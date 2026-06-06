@@ -10,6 +10,7 @@ import eolocontrol.model.RegistroTelemetria;
 import eolocontrol.model.TurbinaEolica;
 import eolocontrol.model.Usuario;
 import eolocontrol.service.AlertaService;
+import eolocontrol.service.InventarioService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -48,6 +49,7 @@ public class MainFrame extends JFrame {
     private final AlertaDao alertaDao;
     private final ReporteDao reporteDao;
     private final AlertaService alertaService;
+    private final InventarioService inventarioService = new InventarioService();
 
     private final DefaultTableModel centralesModel = new DefaultTableModel(
             new Object[]{"ID", "Nombre", "Ubicacion", "Provincia"}, 0);
@@ -153,6 +155,7 @@ public class MainFrame extends JFrame {
                 new JTextField[]{centralId, codigo, modelo, potencia, estado});
         JButton guardar = botonPrincipal("Registrar turbina");
         JButton actualizar = botonSecundario("Actualizar listado");
+        JButton buscar = botonSecundario("Buscar por codigo");
 
         guardar.addActionListener(event -> ejecutar("Turbina registrada.", () -> {
             turbinaDao.crear(new TurbinaEolica(
@@ -167,10 +170,12 @@ public class MainFrame extends JFrame {
             cargarTurbinas();
         }));
         actualizar.addActionListener(event -> cargarTurbinas());
+        buscar.addActionListener(event -> buscarTurbinaPorCodigo());
 
         JPanel acciones = new JPanel();
         acciones.setBackground(COLOR_PANEL);
         acciones.add(guardar);
+        acciones.add(buscar);
         acciones.add(actualizar);
 
         JPanel superior = new JPanel(new BorderLayout());
@@ -317,7 +322,8 @@ public class MainFrame extends JFrame {
     private void cargarTurbinas() {
         ejecutarSinMensaje(() -> {
             turbinasModel.setRowCount(0);
-            for (TurbinaEolica turbina : turbinaDao.listar()) {
+            List<TurbinaEolica> turbinas = inventarioService.ordenarTurbinasPorCodigo(turbinaDao.listar());
+            for (TurbinaEolica turbina : turbinas) {
                 turbinasModel.addRow(new Object[]{
                         turbina.id(),
                         turbina.centralId(),
@@ -326,6 +332,19 @@ public class MainFrame extends JFrame {
                         turbina.potenciaMaximaKw(),
                         turbina.estado()});
             }
+        });
+    }
+
+    private void buscarTurbinaPorCodigo() {
+        ejecutarSinMensaje(() -> {
+            String codigo = JOptionPane.showInputDialog(this, "Ingrese el codigo de la turbina");
+            if (codigo == null) {
+                return;
+            }
+            inventarioService.buscarTurbinaPorCodigo(turbinaDao.listar(), codigo)
+                    .ifPresentOrElse(
+                            turbina -> JOptionPane.showMessageDialog(this, turbina.resumenOperativo(), "Turbina encontrada", JOptionPane.INFORMATION_MESSAGE),
+                            () -> JOptionPane.showMessageDialog(this, "No se encontro una turbina con ese codigo.", "Busqueda sin resultados", JOptionPane.WARNING_MESSAGE));
         });
     }
 
