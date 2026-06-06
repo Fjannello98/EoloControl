@@ -1,6 +1,9 @@
 package eolocontrol.model;
 
+// Clase abstracta usada para reunir datos comunes de los activos del parque.
+// No se instancia directamente: sirve como base para centrales y turbinas.
 public abstract class ActivoEolico {
+    // Encapsulamiento: los atributos quedan privados y se acceden por metodos publicos.
     private final int id;
     private final String nombre;
 
@@ -20,5 +23,6 @@ public abstract class ActivoEolico {
         return nombre;
     }
 
+    // Abstraccion: cada activo define su propia forma de describirse operativamente.
     public abstract String resumenOperativo();
 }

@@ -3,9 +3,11 @@ package eolocontrol.model;
 import java.math.BigDecimal;
 import java.math.RoundingMode;
 
+// Hereda datos comunes de ActivoEolico e implementa el contrato de generacion.
 public class TurbinaEolica extends ActivoEolico implements GeneradorEnergia {
     private static final BigDecimal VIENTO_OPTIMO_KMH = new BigDecimal("80.00");
 
+    // Los atributos privados protegen el estado interno de la turbina.
     private final int centralId;
     private final String modelo;
     private final BigDecimal potenciaMaximaKw;
@@ -57,6 +59,8 @@ public class TurbinaEolica extends ActivoEolico implements GeneradorEnergia {
 
     @Override
     public BigDecimal estimarEnergia(BigDecimal velocidadVientoKmh) {
+        // Implementacion de la interfaz GeneradorEnergia.
+        // Se usa BigDecimal para evitar errores de precision en valores de energia.
         if (velocidadVientoKmh == null || velocidadVientoKmh.signum() <= 0 || !estaOperativa()) {
             return BigDecimal.ZERO;
         }
@@ -67,6 +71,7 @@ public class TurbinaEolica extends ActivoEolico implements GeneradorEnergia {
 
     @Override
     public String resumenOperativo() {
+        // Otra forma de resumenOperativo(): el servicio puede tratarla como ActivoEolico.
         return "Turbina " + codigo() + " modelo " + modelo + " en estado " + estado;
     }
 }

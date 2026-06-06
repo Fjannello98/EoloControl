@@ -322,6 +322,7 @@ public class MainFrame extends JFrame {
     private void cargarTurbinas() {
         ejecutarSinMensaje(() -> {
             turbinasModel.setRowCount(0);
+            // La vista muestra las turbinas ya ordenadas por el servicio de inventario.
             List<TurbinaEolica> turbinas = inventarioService.ordenarTurbinasPorCodigo(turbinaDao.listar());
             for (TurbinaEolica turbina : turbinas) {
                 turbinasModel.addRow(new Object[]{
@@ -341,6 +342,7 @@ public class MainFrame extends JFrame {
             if (codigo == null) {
                 return;
             }
+            // Optional permite expresar claramente si la busqueda encontro o no una turbina.
             inventarioService.buscarTurbinaPorCodigo(turbinaDao.listar(), codigo)
                     .ifPresentOrElse(
                             turbina -> JOptionPane.showMessageDialog(this, turbina.resumenOperativo(), "Turbina encontrada", JOptionPane.INFORMATION_MESSAGE),
