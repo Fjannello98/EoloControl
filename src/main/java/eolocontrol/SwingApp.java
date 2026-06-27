@@ -2,6 +2,9 @@ package eolocontrol;
 
 import com.formdev.flatlaf.FlatLightLaf;
 
+import eolocontrol.controller.ApplicationController;
+import eolocontrol.controller.EoloControlController;
+import eolocontrol.controller.LoginController;
 import eolocontrol.dao.AlertaDao;
 import eolocontrol.dao.CentralDao;
 import eolocontrol.dao.ReporteDao;
@@ -10,6 +13,7 @@ import eolocontrol.dao.TurbinaDao;
 import eolocontrol.dao.UsuarioDao;
 import eolocontrol.model.Usuario;
 import eolocontrol.service.AlertaService;
+import eolocontrol.service.InventarioService;
 import eolocontrol.view.LoginDialog;
 import eolocontrol.view.MainFrame;
 
@@ -29,7 +33,8 @@ public class SwingApp {
             }
 
             UsuarioDao usuarioDao = new UsuarioDao();
-            Optional<Usuario> usuario = new LoginDialog(null, usuarioDao).mostrar();
+            LoginController loginController = new LoginController(usuarioDao);
+            Optional<Usuario> usuario = new LoginDialog(null, loginController).mostrar();
             if (usuario.isEmpty()) {
                 return;
             }
@@ -40,15 +45,17 @@ public class SwingApp {
             AlertaDao alertaDao = new AlertaDao();
             ReporteDao reporteDao = new ReporteDao();
             AlertaService alertaService = new AlertaService(alertaDao);
-
-            MainFrame frame = new MainFrame(
-                    usuario.get(),
+            InventarioService inventarioService = new InventarioService();
+            ApplicationController controller = new EoloControlController(
                     centralDao,
                     turbinaDao,
                     telemetriaDao,
                     alertaDao,
                     reporteDao,
-                    alertaService);
+                    alertaService,
+                    inventarioService);
+
+            MainFrame frame = new MainFrame(usuario.get(), controller);
             frame.setVisible(true);
         });
     }

@@ -1,6 +1,6 @@
 package eolocontrol.view;
 
-import eolocontrol.dao.UsuarioDao;
+import eolocontrol.controller.LoginController;
 import eolocontrol.model.Usuario;
 
 import javax.swing.JButton;
@@ -21,14 +21,14 @@ import java.util.Optional;
 public class LoginDialog extends JDialog {
     private static final Color COLOR_PRIMARIO = new Color(34, 91, 112);
 
-    private final UsuarioDao usuarioDao;
+    private final LoginController loginController;
     private final JTextField usuarioField = new JTextField("admin");
     private final JPasswordField passwordField = new JPasswordField("admin123");
     private Optional<Usuario> usuarioAutenticado = Optional.empty();
 
-    public LoginDialog(JFrame parent, UsuarioDao usuarioDao) {
+    public LoginDialog(JFrame parent, LoginController loginController) {
         super(parent, "Acceso a EoloControl", true);
-        this.usuarioDao = usuarioDao;
+        this.loginController = loginController;
         configurar();
     }
 
@@ -89,7 +89,7 @@ public class LoginDialog extends JDialog {
         String usuario = usuarioField.getText().trim();
         String contrasenia = new String(passwordField.getPassword());
         try {
-            usuarioAutenticado = usuarioDao.autenticar(usuario, contrasenia);
+            usuarioAutenticado = loginController.autenticar(usuario, contrasenia);
             if (usuarioAutenticado.isPresent()) {
                 dispose();
             } else {

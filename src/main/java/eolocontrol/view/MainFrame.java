@@ -3,17 +3,11 @@ package eolocontrol.view;
 import com.formdev.flatlaf.FlatDarkLaf;
 import com.formdev.flatlaf.FlatLightLaf;
 
-import eolocontrol.dao.AlertaDao;
-import eolocontrol.dao.CentralDao;
-import eolocontrol.dao.ReporteDao;
-import eolocontrol.dao.TelemetriaDao;
-import eolocontrol.dao.TurbinaDao;
+import eolocontrol.controller.ApplicationController;
 import eolocontrol.model.CentralEolica;
 import eolocontrol.model.RegistroTelemetria;
 import eolocontrol.model.TurbinaEolica;
 import eolocontrol.model.Usuario;
-import eolocontrol.service.AlertaService;
-import eolocontrol.service.InventarioService;
 
 import javax.swing.BorderFactory;
 import javax.swing.JButton;
@@ -48,13 +42,7 @@ public class MainFrame extends JFrame {
     private static final Font FONT_TITULO = new Font("Segoe UI", Font.BOLD, 24);
     private static final Font FONT_SUBTITULO = new Font("Segoe UI", Font.BOLD, 16);
 
-    private final CentralDao centralDao;
-    private final TurbinaDao turbinaDao;
-    private final TelemetriaDao telemetriaDao;
-    private final AlertaDao alertaDao;
-    private final ReporteDao reporteDao;
-    private final AlertaService alertaService;
-    private final InventarioService inventarioService = new InventarioService();
+    private final ApplicationController controller;
 
     private final DefaultTableModel centralesModel = new DefaultTableModel(
             new Object[]{"ID", "Nombre", "Ubicacion", "Provincia"}, 0) {
@@ -79,19 +67,9 @@ public class MainFrame extends JFrame {
 
     public MainFrame(
             Usuario usuario,
-            CentralDao centralDao,
-            TurbinaDao turbinaDao,
-            TelemetriaDao telemetriaDao,
-            AlertaDao alertaDao,
-            ReporteDao reporteDao,
-            AlertaService alertaService) {
+            ApplicationController controller) {
         super("EoloControl Java - " + usuario.nombreUsuario() + " (" + usuario.rol() + ")");
-        this.centralDao = centralDao;
-        this.turbinaDao = turbinaDao;
-        this.telemetriaDao = telemetriaDao;
-        this.alertaDao = alertaDao;
-        this.reporteDao = reporteDao;
-        this.alertaService = alertaService;
+        this.controller = controller;
         configurar();
         cargarDatos();
     }
@@ -153,7 +131,7 @@ public class MainFrame extends JFrame {
         JButton actualizar = botonSecundario("Actualizar");
 
         guardar.addActionListener(event -> ejecutar("Central registrada.", () -> {
-            centralDao.crear(new CentralEolica(0, nombre.getText().trim(), ubicacion.getText().trim(), provincia.getText().trim()));
+            controller.crearCentral(new CentralEolica(0, nombre.getText().trim(), ubicacion.getText().trim(), provincia.getText().trim()));
             limpiar(nombre, ubicacion, provincia);
             cargarCentrales();
         }));
@@ -186,7 +164,7 @@ public class MainFrame extends JFrame {
         JButton buscar = botonSecundario("Buscar por codigo");
 
         guardar.addActionListener(event -> ejecutar("Turbina registrada.", () -> {
-            turbinaDao.crear(new TurbinaEolica(
+            controller.crearTurbina(new TurbinaEolica(
                     0,
                     Integer.parseInt(centralId.getText().trim()),
                     codigo.getText().trim(),
@@ -234,8 +212,7 @@ public class MainFrame extends JFrame {
                     decimal(velocidad),
                     direccion.getText().trim(),
                     decimal(energia));
-            int id = telemetriaDao.crear(registro);
-            alertaService.evaluarYRegistrar(registro.withId(id));
+            controller.registrarTelemetria(registro);
             limpiar(turbinaId, velocidad, energia);
             fechaHora.setText(LocalDateTime.now().format(INPUT_DATE));
             cargarReportes();
@@ -402,7 +379,7 @@ public class MainFrame extends JFrame {
         ejecutarSinMensaje(() -> {
             cargandoTablas = true;
             centralesModel.setRowCount(0);
-            for (CentralEolica central : centralDao.listar()) {
+            for (CentralEolica central : controller.listarCentrales()) {
                 centralesModel.addRow(new Object[]{central.id(), central.nombre(), central.ubicacion(), central.provincia()});
             }
             cargandoTablas = false;
@@ -414,8 +391,8 @@ public class MainFrame extends JFrame {
         ejecutarSinMensaje(() -> {
             cargandoTablas = true;
             turbinasModel.setRowCount(0);
-            // La vista muestra las turbinas ya ordenadas por el servicio de inventario.
-            List<TurbinaEolica> turbinas = inventarioService.ordenarTurbinasPorCodigo(turbinaDao.listar());
+            // La vista recibe las turbinas desde el controlador, ya ordenadas por la logica de negocio.
+            List<TurbinaEolica> turbinas = controller.listarTurbinas();
             for (TurbinaEolica turbina : turbinas) {
                 turbinasModel.addRow(new Object[]{
                         turbina.id(),
@@ -440,7 +417,7 @@ public class MainFrame extends JFrame {
                     texto(centralesModel.getValueAt(row, 1)),
                     texto(centralesModel.getValueAt(row, 2)),
                     texto(centralesModel.getValueAt(row, 3)));
-            centralDao.actualizar(central);
+            controller.actualizarCentral(central);
             estado("Central actualizada automaticamente.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo editar la central", JOptionPane.ERROR_MESSAGE);
@@ -460,7 +437,7 @@ public class MainFrame extends JFrame {
                     texto(turbinasModel.getValueAt(row, 3)),
                     decimal(turbinasModel.getValueAt(row, 4)),
                     texto(turbinasModel.getValueAt(row, 5)));
-            turbinaDao.actualizar(turbina);
+            controller.actualizarTurbina(turbina);
             estado("Turbina actualizada automaticamente.");
         } catch (Exception ex) {
             JOptionPane.showMessageDialog(this, ex.getMessage(), "No se pudo editar la turbina", JOptionPane.ERROR_MESSAGE);
@@ -475,7 +452,7 @@ public class MainFrame extends JFrame {
                 return;
             }
             // Optional permite expresar claramente si la busqueda encontro o no una turbina.
-            inventarioService.buscarTurbinaPorCodigo(turbinaDao.listar(), codigo)
+            controller.buscarTurbinaPorCodigo(codigo)
                     .ifPresentOrElse(
                             turbina -> JOptionPane.showMessageDialog(this, turbina.resumenOperativo(), "Turbina encontrada", JOptionPane.INFORMATION_MESSAGE),
                             () -> JOptionPane.showMessageDialog(this, "No se encontro una turbina con ese codigo.", "Busqueda sin resultados", JOptionPane.WARNING_MESSAGE));
@@ -483,11 +460,11 @@ public class MainFrame extends JFrame {
     }
 
     private void cargarReportes() {
-        ejecutarSinMensaje(() -> escribirLineas(reportesArea, reporteDao.reporteEnergiaPorTurbina()));
+        ejecutarSinMensaje(() -> escribirLineas(reportesArea, controller.generarReporteEnergia()));
     }
 
     private void cargarAlertas() {
-        ejecutarSinMensaje(() -> escribirLineas(alertasArea, alertaDao.listarPendientes()));
+        ejecutarSinMensaje(() -> escribirLineas(alertasArea, controller.listarAlertasPendientes()));
     }
 
     private void escribirLineas(JTextArea area, List<String> lineas) {
