@@ -6,6 +6,8 @@ La aplicacion esta desarrollada en Java con Swing y utiliza MySQL para la persis
 
 Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explicita de programacion orientada a objetos: encapsulamiento, herencia, polimorfismo, abstraccion, interfaces, constructores, manejo de excepciones, listas, ordenamiento y busqueda. El detalle esta documentado en `docs/ap3-poo.md`.
 
+Para la entrega final, el prototipo aplica el patron Modelo Vista Controlador (MVC), mantiene persistencia MySQL mediante JDBC y permite insertar, consultar y actualizar registros desde la interfaz. El detalle esta documentado en `docs/entrega-final.md`.
+
 ## Funcionalidades
 
 - Autenticacion de usuario.
@@ -29,6 +31,7 @@ Para la tercera etapa del trabajo, el prototipo incorpora una aplicacion explici
 ```text
 EoloControl-Java/
   docs/
+    entrega-final.md
   lib/
     flatlaf-3.7.1.jar
     mysql-connector-j-8.4.0.jar
